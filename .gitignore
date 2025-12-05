@@ -144,7 +144,7 @@ dmypy.json
 
 # datasets and projects
 /datasets
-data
+/data
 logs/
 runs/
 wandb/
