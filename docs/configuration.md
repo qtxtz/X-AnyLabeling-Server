@@ -244,6 +244,7 @@ widgets:                          # Optional: UI components (see table below)
     value: 0.45
   - name: toggle_preserve_existing_annotations
     value: false
+  ...
 ```
 
 **Widget Configuration:**
@@ -252,6 +253,11 @@ widgets:                          # Optional: UI components (see table below)
 |------------|------|-------|----------------|-------------|
 | `button_run` | null | - | - | Trigger inference button for auto-labeling |
 | `button_send` | null | - | - | Submit button (required if using `edit_text`) |
+| `button_add_point` | null | - | - | Button to add positive point prompts (for interactive segmentation models like SAM) |
+| `button_remove_point` | null | - | - | Button to add negative point prompts (for interactive segmentation models like SAM) |
+| `button_add_rect` | null | - | - | Button to add rectangle prompts (for interactive segmentation models) |
+| `button_clear` | null | - | - | Button to clear all prompts |
+| `button_finish_object` | null | - | - | Button to finish current object annotation |
 | `input_conf` | null | - | - | Label for confidence threshold input |
 | `edit_conf` | float | 0.0-1.0 | ✅ Must provide | Confidence threshold slider/input |
 | `input_iou` | null | - | - | Label for IoU threshold input |
@@ -259,6 +265,7 @@ widgets:                          # Optional: UI components (see table below)
 | `edit_text` | string | - | - | Text input field for prompts (requires `button_send`) |
 | `toggle_preserve_existing_annotations` | bool | - | ✅ Must provide | Checkbox to keep existing annotations |
 | `mask_fineness_slider` | int | 1-100 | ✅ Must provide | Mask detail level (for segmentation models) |
+| `mask_fineness_value_label` | null | - | - | Label displaying current mask fineness value (read-only) |
 | `add_pos_rect` | null | - | - | Button to add positive rectangle prompts (for models like SAM 3) |
 | `add_neg_rect` | null | - | - | Button to add negative rectangle prompts (for models like SAM 3) |
 | `button_run_rect` | null | - | - | Trigger inference button for rectangle-based prompts (for models like SAM 3) |
