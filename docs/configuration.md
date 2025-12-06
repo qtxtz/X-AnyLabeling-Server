@@ -10,6 +10,7 @@ This guide covers all configuration options for X-AnyLabeling-Server.
 
 ## 0. Table of Contents
 
+* [0. Custom Configuration Files](#0-custom-configuration-files)
 * [1. Server Configuration](#1-server-configuration)
    * [1.1 Server Settings](#11-server-settings)
    * [1.2 Logging Settings](#12-logging-settings)
@@ -24,6 +25,35 @@ This guide covers all configuration options for X-AnyLabeling-Server.
    * [3.2 High Memory Usage](#32-high-memory-usage)
    * [3.3 Slow Response Times](#33-slow-response-times)
    * [3.4 Queue Full Errors](#34-queue-full-errors)
+
+## 0. Custom Configuration Files
+
+By default, the server uses configuration files from the `configs/` directory. You can specify custom configuration file paths using command-line arguments or environment variables.
+
+### Command-Line Arguments
+
+```bash
+x-anylabeling-server \
+  --config /path/to/custom/server.yaml \
+  --models-config /path/to/custom/models.yaml
+```
+
+### Environment Variables
+
+```bash
+# Set server config path
+export XANYLABELING_SERVER_CONFIG=/path/to/custom/server.yaml
+
+# Set models config path
+export XANYLABELING_MODELS_CONFIG=/path/to/custom/models.yaml
+
+# Start server (will use environment variables)
+x-anylabeling-server
+```
+
+> [!NOTE]
+> Command-line arguments take precedence over environment variables. 
+> Only specified fields override defaults.
 
 ## 1. Server Configuration
 

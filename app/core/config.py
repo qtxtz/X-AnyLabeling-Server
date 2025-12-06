@@ -56,28 +56,66 @@ class Settings(BaseModel):
 
         Returns:
             Settings instance with loaded configuration.
+            User config values override defaults, but missing fields
+            in user config will use defaults.
         """
+        # Start with default settings
+        default_settings = cls()
+        default_dict = default_settings.model_dump()
+
         if not config_path.exists():
-            return cls()
+            return default_settings
 
         with open(config_path, "r") as f:
-            data = yaml.safe_load(f) or {}
+            user_data = yaml.safe_load(f) or {}
 
-        if data.get("security", {}).get("api_key") == "":
+        # Deep merge: user config overrides defaults
+        def deep_merge(default: dict, user: dict) -> dict:
+            """Recursively merge user config into default config."""
+            result = default.copy()
+            for key, value in user.items():
+                if (
+                    key in result
+                    and isinstance(result[key], dict)
+                    and isinstance(value, dict)
+                ):
+                    result[key] = deep_merge(result[key], value)
+                else:
+                    result[key] = value
+            return result
+
+        merged_data = deep_merge(default_dict, user_data)
+
+        # Override API key from environment if not set in config
+        if merged_data.get("security", {}).get("api_key") == "":
             env_key = os.getenv("XANYLABELING_API_KEY", "")
             if env_key:
-                data["security"]["api_key"] = env_key
+                merged_data["security"]["api_key"] = env_key
 
-        return cls(**data)
+        return cls(**merged_data)
 
 
-def get_settings() -> Settings:
+def get_settings(config_path: Optional[Path] = None) -> tuple:
     """Get application settings.
 
+    Args:
+        config_path: Optional path to server.yaml config file.
+                     If not provided, will check:
+                     1. XANYLABELING_SERVER_CONFIG environment variable
+                     2. Default configs/server.yaml
+
     Returns:
-        Settings instance.
+        Tuple of (Settings instance, actual config file path used).
     """
-    config_path = (
-        Path(__file__).parent.parent.parent / "configs" / "server.yaml"
-    )
-    return Settings.load_from_yaml(config_path)
+    if config_path is None:
+        env_config = os.getenv("XANYLABELING_SERVER_CONFIG")
+        if env_config:
+            config_path = Path(env_config)
+        else:
+            config_path = (
+                Path(__file__).parent.parent.parent / "configs" / "server.yaml"
+            )
+    else:
+        config_path = Path(config_path)
+
+    return Settings.load_from_yaml(config_path), config_path

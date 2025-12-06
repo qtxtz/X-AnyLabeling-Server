@@ -4,7 +4,7 @@ import time
 import yaml
 from loguru import logger
 from pathlib import Path
-from typing import Dict, List, Type
+from typing import Dict, List, Optional, Type
 
 from app.models import BaseModel
 
@@ -38,13 +38,20 @@ def register_model(*model_ids: str):
 class ModelRegistry:
     """Model loader and registry."""
 
-    def __init__(self, config_dir: Path):
+    def __init__(
+        self, config_dir: Path, models_config_path: Optional[Path] = None
+    ):
         """Initialize model loader.
 
         Args:
-            config_dir: Path to configs directory.
+            config_dir: Path to configs directory (for auto_labeling configs).
+            models_config_path: Optional path to models.yaml file.
+                               If not provided, will use config_dir/models.yaml.
         """
         self.config_dir = config_dir
+        self.models_config_path = models_config_path or (
+            config_dir / "models.yaml"
+        )
         self.models: Dict[str, BaseModel] = {}
         self.model_registry = self._build_registry()
 
@@ -82,12 +89,13 @@ class ModelRegistry:
         Returns:
             Dictionary with enabled_models list.
         """
-        models_yaml = self.config_dir / "models.yaml"
-        if not models_yaml.exists():
-            logger.warning(f"models.yaml not found at {models_yaml}")
+        if not self.models_config_path.exists():
+            logger.warning(
+                f"models.yaml not found at {self.models_config_path}"
+            )
             return {"enabled_models": []}
 
-        with open(models_yaml, "r") as f:
+        with open(self.models_config_path, "r") as f:
             return yaml.safe_load(f) or {"enabled_models": []}
 
     def _read_model_config(self, model_id: str) -> Dict:

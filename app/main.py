@@ -16,7 +16,7 @@ from app.core.registry import ModelRegistry
 from app.tasks.inference import InferenceExecutor
 from app.api import health, models, predict
 
-settings = get_settings()
+settings, _ = get_settings()
 setup_logging(settings.logging)
 
 loader = None
@@ -33,10 +33,22 @@ async def lifespan(app: FastAPI):
     global loader, inference_executor
 
     logger.info("Starting X-AnyLabeling Server...")
-    logger.info("Configuration loaded from configs/server.yaml")
+
+    import os
+
+    _, actual_server_config = get_settings()
+    logger.info(f"Configuration loaded from {actual_server_config}")
 
     config_dir = Path(__file__).parent.parent / "configs"
-    loader = ModelRegistry(config_dir)
+    models_config_path = os.getenv("XANYLABELING_MODELS_CONFIG")
+    if models_config_path:
+        models_config_path = Path(models_config_path)
+        logger.info(f"Models config loaded from {models_config_path}")
+    else:
+        models_config_path = None
+        logger.info(f"Models config loaded from {config_dir / 'models.yaml'}")
+
+    loader = ModelRegistry(config_dir, models_config_path=models_config_path)
 
     try:
         loader.load_all_models()

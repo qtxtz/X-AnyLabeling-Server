@@ -1,7 +1,9 @@
 """Command-line interface for X-AnyLabeling Server."""
 
 import argparse
+import os
 import uvicorn
+from pathlib import Path
 
 from app import __version__
 from app.core.config import get_settings
@@ -46,10 +48,29 @@ def main():
         help='Enable auto-reload (for development)',
     )
 
+    parser.add_argument(
+        '--config',
+        type=str,
+        help='Path to server.yaml config file (overrides XANYLABELING_SERVER_CONFIG env var)',
+    )
+
+    parser.add_argument(
+        '--models-config',
+        type=str,
+        help='Path to models.yaml config file (overrides XANYLABELING_MODELS_CONFIG env var)',
+    )
+
     args = parser.parse_args()
 
+    # Set environment variables for configs if provided
+    if args.config:
+        os.environ["XANYLABELING_SERVER_CONFIG"] = str(args.config)
+    if args.models_config:
+        os.environ["XANYLABELING_MODELS_CONFIG"] = str(args.models_config)
+
     # Load settings from config file
-    settings = get_settings()
+    config_path = Path(args.config) if args.config else None
+    settings, actual_config_path = get_settings(config_path)
 
     # Override with command-line arguments if provided
     host = args.host or settings.server.host
@@ -59,6 +80,10 @@ def main():
 
     print(f"Starting X-AnyLabeling Server v{__version__}")
     print(f"Server: http://{host}:{port}")
+    if args.config:
+        print(f"Using server config: {args.config}")
+    if args.models_config:
+        print(f"Using models config: {args.models_config}")
 
     uvicorn.run(
         "app.main:app",
