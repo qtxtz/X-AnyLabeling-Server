@@ -38,7 +38,9 @@ class SegmentAnything3(BaseModel):
                     f"CUDA device requested but not available, falling back to CPU"
                 )
 
-        logger.info(f"Loading SAM3 model from {model_path} on device {self.device}")
+        logger.info(
+            f"Loading SAM3 model from {model_path} on device {self.device}"
+        )
         self.model = build_sam3_image_model(
             bpe_path=bpe_path,
             device=self.device,

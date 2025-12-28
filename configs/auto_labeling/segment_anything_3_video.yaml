@@ -1,0 +1,28 @@
+model_id: segment_anything_3_video
+display_name: "Segment Anything 3 Video"
+batch_processing_mode: "video"
+
+params:
+  bpe_path: "bpe_simple_vocab_16e6.txt.gz"
+  model_path: "sam3.pt"
+  devices: [0]
+  conf_threshold: 0.25
+  show_boxes: true
+  show_masks: false
+  epsilon_factor: 0.001
+
+widgets:
+  - name: edit_text
+    value: null
+  - name: button_send
+    value: null
+  - name: input_conf
+    value: null
+  - name: edit_conf
+    value: 0.25
+  - name: mask_fineness_slider
+    value: 10
+  - name: mask_fineness_value_label
+    value: null
+  - name: toggle_preserve_existing_annotations
+    value: false
