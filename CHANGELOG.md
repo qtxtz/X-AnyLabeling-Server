@@ -1,3 +1,20 @@
+## `v0.0.5` (Dec 31, 2025)
+
+### 🚀 New Features
+
+- Add Segment Anything 3 Video, supporting text and visual prompts
+
+### 🛠️ Improvements
+
+- Implement memory pruning for non-conditioning frames to optimize memory usage
+- Enhance SAM3SemanticVideoPredictor speed by removing unmatched objects
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v0.0.4` (Dec 13, 2025)
 
 ### 🚀 New Features
