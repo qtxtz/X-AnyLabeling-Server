@@ -269,7 +269,7 @@ widgets:                          # Optional: UI components (see table below)
 | `add_pos_rect` | null | - | - | Button to add positive rectangle prompts (for models like SAM 3) |
 | `add_neg_rect` | null | - | - | Button to add negative rectangle prompts (for models like SAM 3) |
 | `button_run_rect` | null | - | - | Trigger inference button for rectangle-based prompts (for models like SAM 3) |
-| `remote_task_select_combobox` | null | - | - | Task selection dropdown for multi-task models (e.g., Rex-Omni) that support multiple tasks within a single model |
+| `remote_task_select_combobox` | null | - | - | Task selection dropdown for multi-task models (e.g., Rex-Omni, PaddleOCR-VL-1.5) that support multiple tasks within a single model |
 
 **Batch Processing Mode:**
 
@@ -281,7 +281,7 @@ widgets:                          # Optional: UI components (see table below)
 
 **Multi-Task Models:**
 
-Some models support multiple tasks within a single model instance (e.g., Rex-Omni). For these models:
+Some models support multiple tasks within a single model instance (e.g., Rex-Omni, PaddleOCR-VL-1.5). For these models:
 
 1. **Configuration:** Add `remote_task_select_combobox` to the `widgets` list in the model configuration file.
 
