@@ -13,7 +13,6 @@
 <p align="center">
     <a href=""><img src="https://img.shields.io/badge/python-3.10+-aff.svg"></a>
     <a href=""><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
-    <a href="./LICENSE"><img src="https://img.shields.io/github/license/heartexlabs/label-studio?logo=heartex"></a>
 </p>
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)

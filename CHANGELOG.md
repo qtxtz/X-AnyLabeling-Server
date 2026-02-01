@@ -1,3 +1,17 @@
+## `v0.0.7` (Feb 01, 2026)
+
+### 🚀 New Features
+
+- Add PP-DocLayoutV3, supporting multi-point localization (quadrilaterals/polygons) and logical reading order prediction
+- Add PaddleOCR-vl-1.5, supporting OCR, table recognition, formula recognition, chart recognition, text spotting, and seal recognition
+- Update license from Apache-2.0 to AGPL-3.0
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v0.0.6` (Jan 22, 2026)
 
 ### 🚀 New Features
