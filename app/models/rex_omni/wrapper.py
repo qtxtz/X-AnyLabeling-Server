@@ -37,6 +37,7 @@ class RexOmniWrapper:
         skip_special_tokens: bool = False,
         stop: Optional[List[str]] = None,
         quantization: str = None,
+        attn_implementation: bool = None,
         **kwargs,
     ):
         """
@@ -73,6 +74,7 @@ class RexOmniWrapper:
         self.skip_special_tokens = skip_special_tokens
         self.stop = stop or ["<|im_end|>"]
         self.quantization = quantization
+        self.attn_implementation = attn_implementation
 
         # Initialize model and processor
         self._initialize_model(**kwargs)
@@ -81,7 +83,6 @@ class RexOmniWrapper:
         """Initialize model and processor based on backend type"""
         print(f"Initializing {self.backend} backend...")
 
-        attn_implementation=kwargs.get("attn_implementation", None)
         if self.backend == "vllm":
             from transformers import AutoProcessor
             from vllm import LLM, SamplingParams
@@ -90,30 +91,7 @@ class RexOmniWrapper:
             self.model = LLM(
                 model=self.model_path,
                 tokenizer=self.model_path,
-                tokenizer_mode=kwargs.get("tokenizer_mode", "slow"),
-                limit_mm_per_prompt=kwargs.get(
-                    "limit_mm_per_prompt", {"image": 10, "video": 10}
-                ),
-                max_model_len=kwargs.get("max_model_len", 4096),
-                gpu_memory_utilization=kwargs.get(
-                    "gpu_memory_utilization", 0.8
-                ),
-                tensor_parallel_size=kwargs.get("tensor_parallel_size", 1),
-                trust_remote_code=kwargs.get("trust_remote_code", True),
-                quantization=self.quantization,
-                **{
-                    k: v
-                    for k, v in kwargs.items()
-                    if k
-                    not in [
-                        "tokenizer_mode",
-                        "limit_mm_per_prompt",
-                        "max_model_len",
-                        "gpu_memory_utilization",
-                        "tensor_parallel_size",
-                        "trust_remote_code",
-                    ]
-                },
+                **kwargs,
             )
 
             # Initialize processor
@@ -123,7 +101,7 @@ class RexOmniWrapper:
                 max_pixels=self.max_pixels,
             )
 
-            if attn_implementation:
+            if self.attn_implementation:
                 # Set padding side to left for batch inference with Flash Attention
                 self.processor.tokenizer.padding_side = "left"
 
@@ -150,21 +128,7 @@ class RexOmniWrapper:
             # Initialize transformers model
             self.model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
                 self.model_path,
-                torch_dtype=kwargs.get("torch_dtype", torch.bfloat16),
-                attn_implementation=attn_implementation,
-                device_map=kwargs.get("device_map", "auto"),
-                trust_remote_code=kwargs.get("trust_remote_code", True),
-                **{
-                    k: v
-                    for k, v in kwargs.items()
-                    if k
-                    not in [
-                        "torch_dtype",
-                        "attn_implementation",
-                        "device_map",
-                        "trust_remote_code",
-                    ]
-                },
+                **kwargs,
             )
 
             # Initialize processor
@@ -175,7 +139,7 @@ class RexOmniWrapper:
                 use_fast=False,
             )
 
-            if attn_implementation:
+            if self.attn_implementation:
                 # Set padding side to left for batch inference with Flash Attention
                 self.processor.tokenizer.padding_side = "left"
 
