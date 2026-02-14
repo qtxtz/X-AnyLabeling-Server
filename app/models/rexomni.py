@@ -36,14 +36,16 @@ class RexOmni(BaseModel):
         import torch
 
         init_kwargs = {
-            "device_map": device_map,
-            "torch_dtype": torch.bfloat16,
             "trust_remote_code": True,
         }
-        if attn_implementation is not None:
-            init_kwargs["attn_implementation"] = attn_implementation
 
-        if backend == "vllm":
+        if backend == "transformers":
+            init_kwargs.update({
+                "device_map": device_map,
+                "torch_dtype": torch.bfloat16,
+            })
+
+        elif backend == "vllm":
             init_kwargs.update(
                 {
                     "tokenizer_mode": self.params.get(
@@ -73,6 +75,7 @@ class RexOmni(BaseModel):
             repetition_penalty=self.params.get("repetition_penalty", 1.05),
             min_pixels=self.params.get("min_pixels", 16 * 28 * 28),
             max_pixels=self.params.get("max_pixels", 2560 * 28 * 28),
+            attn_implementation=attn_implementation,
             **init_kwargs,
         )
         self.task_type = TaskType
