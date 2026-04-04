@@ -28,6 +28,7 @@ class SegmentAnything3(BaseModel):
         bpe_path = self.params.get("bpe_path")
         model_path = self.params.get("model_path")
         device = self.params.get("device", "cuda:0")
+        self.image_size = self.params.get("image_size", 1008)
 
         if "cuda" in device and torch.cuda.is_available():
             self.device = "cuda"
@@ -45,6 +46,7 @@ class SegmentAnything3(BaseModel):
             bpe_path=bpe_path,
             device=self.device,
             checkpoint_path=model_path,
+            image_size=self.image_size,
         )
 
         if self.device == "cuda" and torch.cuda.is_available():
@@ -114,7 +116,10 @@ class SegmentAnything3(BaseModel):
         )
 
         processor = Sam3Processor(
-            self.model, confidence_threshold=conf_thresh, device=self.device
+            self.model,
+            resolution=self.image_size,
+            confidence_threshold=conf_thresh,
+            device=self.device,
         )
 
         pil_image = Image.fromarray(image[:, :, ::-1])
@@ -241,7 +246,10 @@ class SegmentAnything3(BaseModel):
             )
 
         processor = Sam3Processor(
-            self.model, confidence_threshold=conf_thresh, device=self.device
+            self.model,
+            resolution=self.image_size,
+            confidence_threshold=conf_thresh,
+            device=self.device,
         )
 
         pil_image = Image.fromarray(image[:, :, ::-1])

@@ -169,6 +169,7 @@ class SegmentAnything3Video(BaseModel):
         bpe_path = self.params.get("bpe_path")
         model_path = self.params.get("model_path")
         devices = self.params.get("devices", [0])
+        image_size = self.params.get("image_size", 1008)
 
         if isinstance(devices, list) and devices:
             gpus_to_use = range(len(devices))
@@ -188,6 +189,7 @@ class SegmentAnything3Video(BaseModel):
             gpus_to_use=gpus_to_use,
             bpe_path=bpe_path,
             checkpoint_path=model_path,
+            image_size=image_size,
         )
 
         logger.info("SAM3 video model loaded successfully")

@@ -34,6 +34,7 @@ class Sam3VideoPredictor:
         async_loading_frames=False,
         video_loader_type="cv2",
         apply_temporal_disambiguation: bool = True,
+        image_size=1008,
     ):
         self.async_loading_frames = async_loading_frames
         self.video_loader_type = video_loader_type
@@ -43,6 +44,7 @@ class Sam3VideoPredictor:
             build_sam3_video_model(
                 checkpoint_path=checkpoint_path,
                 bpe_path=bpe_path,
+                image_size=image_size,
                 has_presence_token=has_presence_token,
                 geo_encoder_use_img_cross_attn=geo_encoder_use_img_cross_attn,
                 strict_state_dict_loading=strict_state_dict_loading,

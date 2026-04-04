@@ -40,10 +40,12 @@ class RexOmni(BaseModel):
         }
 
         if backend == "transformers":
-            init_kwargs.update({
-                "device_map": device_map,
-                "torch_dtype": torch.bfloat16,
-            })
+            init_kwargs.update(
+                {
+                    "device_map": device_map,
+                    "torch_dtype": torch.bfloat16,
+                }
+            )
 
         elif backend == "vllm":
             init_kwargs.update(
