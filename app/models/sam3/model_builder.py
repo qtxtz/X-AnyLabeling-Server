@@ -537,7 +537,7 @@ def _create_vision_backbone(
     """Create SAM3 visual backbone with ViT and neck."""
     # Position encoding
     position_encoding = _create_position_encoding(
-        precompute_resolution=image_size, 
+        precompute_resolution=image_size,
         device=device)
     # ViT backbone
     vit_backbone: ViT = _create_vit_backbone(
