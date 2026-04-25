@@ -1,3 +1,15 @@
+## `v0.0.9` (Apr 25, 2026)
+
+### 🚀 New Features
+
+- Add GECO2 support for object counting
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v0.0.8` (Apr 18, 2026)
 
 ### 🚀 New Features
