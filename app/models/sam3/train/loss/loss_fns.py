@@ -24,7 +24,6 @@ from .mask_sampling import (
     point_sample,
 )
 
-
 CORE_LOSS_KEY = "core_loss"
 
 

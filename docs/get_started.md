@@ -79,7 +79,8 @@ uv pip install -e .[all]
 > For GLM and other API-based models, you can set the API key via environment variables (e.g., `ZHIPU_API_KEY`) in the terminal, or configure it in the model configuration file. Alternatively, you can deploy and integrate them using vLLM or SGLang.</br>
 > For `rexomni` and `paddleocr_vl_1_5`, we recommend using the `[all]` installation mode to ensure all required dependencies are properly installed.</br>
 > For `paddleocr_vl_1_5`, requires `transformers>=5.0.0` (install via `python -m pip install "transformers>=5.0.0"`). Use flash-attn to boost performance and reduce memory usage. If inference times out, adjust parameters (`max_new_tokens`, `max_pixels`, `spotting_max_pixels`, `spotting_upscale_threshold`) in `configs/auto_labeling/paddleocr_vl_1_5.yaml` based on your GPU memory. See details at https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.5</br>
-> For `pp_doclayout_v3`, requires the latest transformers development branch (install via `pip install --upgrade git+https://github.com/huggingface/transformers.git`). See details at https://huggingface.co/PaddlePaddle/PP-DocLayoutV3
+> For `pp_doclayout_v3`, requires the latest transformers development branch (install via `pip install --upgrade git+https://github.com/huggingface/transformers.git`). See details at https://huggingface.co/PaddlePaddle/PP-DocLayoutV3</br>
+> For `geco2`, you can download the weights for `CNTQG_multitrain_ca44.pth` and `sam2_hiera_base_plus.pt` from [here](https://github.com/CVHub520/X-AnyLabeling-Server/releases/download/v0.0.9).
 
 After installation, you can quickly start the service with the following command:
 

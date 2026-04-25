@@ -16,3 +16,4 @@ enabled_models:
   # - pp_doclayout_v3
   # - paddleocr_vl_1_5
   # - ppocr_layoutstructv3_vl_1_5
+  # - geco2

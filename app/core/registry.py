@@ -8,7 +8,6 @@ from typing import Dict, List, Optional, Type
 
 from app.models import BaseModel
 
-
 _MODEL_REGISTRY: Dict[str, Type[BaseModel]] = {}
 
 

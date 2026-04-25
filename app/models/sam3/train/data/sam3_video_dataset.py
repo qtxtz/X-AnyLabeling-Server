@@ -24,7 +24,6 @@ from PIL import Image as PILImage
 
 from .sam3_image_dataset import Datapoint, Sam3ImageDataset
 
-
 SEED = 42
 
 

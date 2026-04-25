@@ -50,7 +50,6 @@ from sam3.model.vitdet import ViT
 from sam3.model.vl_combiner import SAM3VLBackbone
 from sam3.sam.transformer import RoPEAttention
 
-
 SAM3_DEFAULT_IMAGE_SIZE = 1008
 
 

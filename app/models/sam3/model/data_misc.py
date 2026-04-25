@@ -25,7 +25,6 @@ from typing import (
 
 import torch
 
-
 MyTensor = Union[torch.Tensor, List[Any]]
 
 

@@ -11,7 +11,17 @@ from typing import List, Tuple, Union
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from iopath.common.file_io import g_pathmgr
+
+try:
+    from iopath.common.file_io import g_pathmgr
+except ModuleNotFoundError:
+
+    class _PathManager:
+        @staticmethod
+        def open(path, mode="r"):
+            return open(path, mode)
+
+    g_pathmgr = _PathManager()
 
 from sam2.modeling.backbones.utils import (
     PatchEmbed,

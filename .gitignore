@@ -176,6 +176,7 @@ weights/
 *_imx_model/
 pnnx*
 *.rknn
+*.pth
 
 # calibration image
 calibration_*.npy
