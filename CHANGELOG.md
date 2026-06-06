@@ -1,3 +1,15 @@
+## `v0.0.11` (Jun 06, 2026)
+
+### 🚀 New Features
+
+- Add LocateAnything support for remote grounding, pointing, and text detection
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v0.0.10` (Apr 25, 2026)
 
 ### 🚀 New Features
