@@ -6,6 +6,7 @@ on:
       - "app/api/**"
       - "app/schemas/**"
       - "app/main.py"
+      - "pyproject.toml"
       - "docs/openapi.json"
       - "scripts/export_openapi.py"
   push:
@@ -15,6 +16,7 @@ on:
       - "app/api/**"
       - "app/schemas/**"
       - "app/main.py"
+      - "pyproject.toml"
       - "docs/openapi.json"
       - "scripts/export_openapi.py"
   workflow_dispatch:
