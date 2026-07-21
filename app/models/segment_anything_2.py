@@ -1,8 +1,9 @@
 from collections import OrderedDict
+from contextlib import nullcontext
 from hashlib import md5
 from loguru import logger
 from PIL import Image
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import threading
 
 import numpy as np
@@ -60,24 +61,25 @@ class SegmentAnything2(BaseModel):
             "configs/sam2.1", self.params.get("model_cfg") + ".yaml"
         )
         checkpoint_path = self.params.get("model_path")
-        device = self.params.get("device", "cuda")
+        requested_device = torch.device(self.params.get("device", "cuda"))
 
         # select the device for computation
-        if torch.cuda.is_available() and "cuda" in device:
-            self.device = torch.device("cuda")
-        elif torch.backends.mps.is_available() and "mps" in device:
-            self.device = torch.device("mps")
+        if torch.cuda.is_available() and requested_device.type == "cuda":
+            self.device = requested_device
+        elif (
+            torch.backends.mps.is_available()
+            and requested_device.type == "mps"
+        ):
+            self.device = requested_device
         else:
             self.device = torch.device("cpu")
 
         if self.device.type == "cuda":
-            # use bfloat16 for the entire notebook
-            torch.autocast("cuda", dtype=torch.bfloat16).__enter__()
             # turn on tfloat32 for Ampere GPUs (https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices)
-            if torch.cuda.get_device_properties(0).major >= 8:
+            if torch.cuda.get_device_properties(self.device).major >= 8:
                 torch.backends.cuda.matmul.allow_tf32 = True
                 torch.backends.cudnn.allow_tf32 = True
-        elif device.type == "mps":
+        elif self.device.type == "mps":
             print(
                 "\nSupport for MPS devices is preliminary. SAM 2 is trained with CUDA and might "
                 "give numerically different outputs and sometimes degraded performance on MPS. "
@@ -89,6 +91,7 @@ class SegmentAnything2(BaseModel):
         )
         sam2_model = build_sam2(model_cfg, checkpoint_path, device=self.device)
         self.predictor = SAM2ImagePredictor(sam2_model)
+        self.predict_lock = threading.Lock()
 
         cache_size = self.params.get("cache_size", 10)
         self.image_embedding_cache = LRUCache(maxsize=cache_size)
@@ -114,7 +117,13 @@ class SegmentAnything2(BaseModel):
             logger.warning("No prompts provided")
             return {"shapes": [], "description": "", "replace": False}
 
-        return self._predict_with_marks(image, marks, params)
+        autocast_context = (
+            torch.autocast("cuda", dtype=torch.bfloat16)
+            if self.device.type == "cuda"
+            else nullcontext()
+        )
+        with self.predict_lock, autocast_context:
+            return self._predict_with_marks(image, marks, params)
 
     def _predict_with_marks(
         self,
@@ -231,10 +240,15 @@ class SegmentAnything2(BaseModel):
 
         if box_coords is not None:
             box_coords = np.array(box_coords)
-            if len(box_coords.shape) == 1:
-                box_coords = box_coords[None, :]
-            elif len(box_coords.shape) == 2 and box_coords.shape[0] == 1:
-                box_coords = box_coords[None, :]
+            if len(box_coords) == 1:
+                box_coords = box_coords[0]
+            elif point_coords is not None:
+                point_coords = np.repeat(
+                    point_coords[None, ...], len(box_coords), axis=0
+                )
+                point_labels = np.repeat(
+                    point_labels[None, ...], len(box_coords), axis=0
+                )
 
         masks, scores, _ = self.predictor.predict(
             point_coords=point_coords,
@@ -247,34 +261,37 @@ class SegmentAnything2(BaseModel):
             logger.warning("No masks predicted")
             return {"shapes": [], "description": "", "replace": False}
 
-        if multimask_output:
-            sorted_ind = np.argsort(scores)[::-1]
-            masks = masks[sorted_ind]
-            scores = scores[sorted_ind]
-            best_mask = masks[0]
-            best_score = scores[0]
-        else:
-            if len(masks.shape) == 3:
-                best_mask = masks[0]
-            else:
-                best_mask = masks
-            best_score = scores[0] if len(scores) > 0 else 1.0
+        if len(masks.shape) == 3:
+            masks = masks[None, ...]
+        if len(scores.shape) == 1:
+            scores = scores[None, ...]
 
-        if isinstance(best_mask, torch.Tensor):
-            best_mask = best_mask.cpu().numpy()
-        if isinstance(best_score, torch.Tensor):
-            best_score = best_score.cpu().item()
+        if len(masks.shape) != 4 or len(scores.shape) != 2:
+            raise ValueError(
+                f"Unexpected SAM2 output shapes: masks={masks.shape}, "
+                f"scores={scores.shape}"
+            )
 
         epsilon_factor = params.get(
             "epsilon_factor", self.params.get("epsilon_factor", 0.001)
         )
 
-        shapes = self._convert_results_to_shapes(
-            best_mask,
-            show_boxes,
-            show_masks,
-            epsilon_factor,
-        )
+        shapes = []
+        for index in range(len(masks)):
+            best_index = (
+                int(np.argmax(scores[index])) if multimask_output else 0
+            )
+            best_mask = masks[index, best_index]
+            best_score = float(scores[index, best_index])
+            shapes.extend(
+                self._convert_results_to_shapes(
+                    best_mask,
+                    show_boxes,
+                    show_masks,
+                    epsilon_factor,
+                    best_score,
+                )
+            )
 
         return {"shapes": shapes, "description": "", "replace": False}
 
@@ -284,6 +301,7 @@ class SegmentAnything2(BaseModel):
         show_boxes: bool = False,
         show_masks: bool = True,
         epsilon_factor: float = 0.001,
+        score: Optional[float] = None,
     ) -> List[Shape]:
         """Convert SAM2 results to Shape objects.
 
@@ -292,6 +310,7 @@ class SegmentAnything2(BaseModel):
             show_boxes: Whether to return bounding boxes.
             show_masks: Whether to return masks as polygons.
             epsilon_factor: Factor for polygon approximation epsilon.
+            score: Predicted mask quality score.
 
         Returns:
             List of Shape objects.
@@ -351,6 +370,7 @@ class SegmentAnything2(BaseModel):
                     label="AUTOLABEL_OBJECT",
                     shape_type="polygon",
                     points=[[float(p[0]), float(p[1])] for p in points],
+                    score=score,
                 )
                 shapes.append(shape)
 
@@ -379,6 +399,7 @@ class SegmentAnything2(BaseModel):
                         [x_max, y_max],
                         [x_min, y_max],
                     ],
+                    score=score,
                 )
                 shapes.append(shape)
 
